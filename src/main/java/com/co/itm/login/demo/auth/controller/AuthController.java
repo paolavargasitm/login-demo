@@ -2,34 +2,49 @@ package com.co.itm.login.demo.auth.controller;
 
 import com.co.itm.login.demo.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
+@Controller
 @RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
     private UserService userService;
 
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
+    }
+
     @PostMapping("/register")
-    public String register(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String password = request.get("password");
+    public String register (@RequestParam String username,
+                            @RequestParam String password,
+                            Model model) {
         userService.registerUser(username, password);
-        return "Usuario registrado con éxito";
+        model.addAttribute("message", "Usuario registrado con éxito. Ahora puedes iniciar sesión.");
+        return "login";
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String password = request.get("password");
+    public String login (@RequestParam String username,
+                         @RequestParam String password,
+                         Model model) {
 
         if (userService.validateLogin(username, password)) {
-            return "Login exitoso";
+            model.addAttribute("message", "Bienvenido " + username + "!");
+            return "success";
         } else {
-            return "Credenciales incorrectas";
+            model.addAttribute("errorMessage", "Credenciales incorrectas");
+            return "error";
         }
     }
 }
